@@ -30,13 +30,20 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         exit();
     }
 
+    //преобразования специальных символов в HTML-сущности
+    //ENT_QUOTES - флаг, указывающий какие кавычки преобразовывать: Преобразует и двойные (") и одинарные (') кавычки
     $name = htmlspecialchars($name, ENT_QUOTES, 'UTF-8');
     $login = htmlspecialchars($login, ENT_QUOTES, 'UTF-8');
 
     try {
+        //PDO - PHP Data Object
         $database = new PDO('sqlite:database.sqlite');
+
+        //PDO::ATTR_ERRMODE - атрибут, который мы настраиваем (режим ошибок)
+        //PDO::ERRMODE_EXCEPTION - значение, которое мы устанавливаем (режим исключений)
         $database->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 
+        //Создаем таблицу если ее не существует
         $database->exec("
             CREATE TABLE IF NOT EXISTS users (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -49,19 +56,25 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
         $stmt = $database->prepare("SELECT id FROM users WHERE login = :login");
         $stmt->bindValue(':login', $login, PDO::PARAM_STR);
+        //Выполняет подготовленный SQL-запрос с привязанными параметрами.
         $stmt->execute();
 
+        //Извлекает следующую строку из результирующего набора.
         if ($stmt->fetch()) {
             $_SESSION['form_errors'] = ["Пользователь с таким логином уже существует."];
             header('Location: index.php');
             exit();
         }
 
+        //Создает безопасный хеш пароля используя самый современный и рекомендуемый алгоритм
+        $password = password_hash($password, PASSWORD_DEFAULT);
+
         $stmt = $database->prepare("
             INSERT INTO users (name, login, password) 
             VALUES (:name, :login, :password)
         ");
 
+        //PDO::PARAM_STR - тип данных (строка)
         $stmt->bindValue(':name', $name, PDO::PARAM_STR);
         $stmt->bindValue(':login', $login, PDO::PARAM_STR);
         $stmt->bindValue(':password', $password, PDO::PARAM_STR);

@@ -5,13 +5,14 @@ try {
     $database->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 
     $stmt = $database->query("SELECT * FROM users ORDER BY created_at DESC");
+    //Извлекаем все строки результирующего набора и возвращает их в виде массива
     $users = $stmt->fetchAll(PDO::FETCH_ASSOC);
 } catch (PDOException $ex) {
     die("Ошибка подключения к базе данных: " . $ex->getMessage());
 }
 
 if (isset($_SESSION['success_message'])) {
-    echo '<div>' . htmlspecialchars($_SESSION['success_message']) . '</div>';
+    echo '<div class="alert alert-success" role="alert">' . htmlspecialchars($_SESSION['success_message']) . '</div>';
     unset($_SESSION['success_message']);
 }
 ?>
