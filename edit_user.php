@@ -2,7 +2,17 @@
 session_start();
 
 try {
-    $database = new PDO('sqlite:database.sqlite');
+    //$database = new PDO('sqlite:database.sqlite');
+    $host = 'localhost';
+    $port = '5432';
+    $dbname = 'test';
+    $username = 'postgres';
+    $password_db = '1452';
+
+    $dsn = "pgsql:host=$host;port=$port;dbname=$dbname";
+
+    $database = new PDO($dsn, $username, $password_db);
+
     $database->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 } catch (PDOException $e) {
     die("Ошибка подключения к базе данных: " . $e->getMessage());

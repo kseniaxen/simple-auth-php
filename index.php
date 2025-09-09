@@ -37,20 +37,42 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     try {
         //PDO - PHP Data Object
-        $database = new PDO('sqlite:database.sqlite');
+        //$database = new PDO('sqlite:database.sqlite');
+
+        $host = 'localhost';
+        $port = '5432';
+        $dbname = 'test';
+        $username = 'postgres';
+        $password_db = '1452';
+
+        $dsn = "pgsql:host=$host;port=$port;dbname=$dbname";
+
+        $database = new PDO($dsn, $username, $password_db);
 
         //PDO::ATTR_ERRMODE - атрибут, который мы настраиваем (режим ошибок)
         //PDO::ERRMODE_EXCEPTION - значение, которое мы устанавливаем (режим исключений)
         $database->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 
-        //Создаем таблицу если ее не существует
-        $database->exec("
+
+        //Создаем таблицу если ее не существует (синтаксист Sqlite)
+        /*$database->exec("
             CREATE TABLE IF NOT EXISTS users (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
                 name TEXT NOT NULL,
                 login TEXT UNIQUE NOT NULL,
                 password TEXT NOT NULL,
                 created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+            )
+        ");*/
+
+        // Создаем таблицу если ее не существует (синтаксис PostgreSQL)
+        $database->exec("
+            CREATE TABLE IF NOT EXISTS users (
+                id SERIAL PRIMARY KEY,
+                name TEXT NOT NULL,
+                login TEXT UNIQUE NOT NULL,
+                password TEXT NOT NULL,
+                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
             )
         ");
 
